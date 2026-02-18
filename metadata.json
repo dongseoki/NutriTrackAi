@@ -1,0 +1,7 @@
+{
+  "name": "NutriTrack AI",
+  "description": "A mobile-first AI-powered diet and nutrition tracking application that analyzes meal images to calculate nutritional values.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
