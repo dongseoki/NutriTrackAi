@@ -66,7 +66,7 @@ export interface DateKey {
 
 export interface DailyMealData {
   date: DateKey;
-  meals: Record<string, MealRecord>;
+  meals: Record<MealType, MealRecord>;
   lastModified: number;
 }
 
