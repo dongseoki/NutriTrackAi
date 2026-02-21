@@ -12,6 +12,7 @@ export enum MealType {
 export interface FoodItem {
   id: string;
   name: string;
+  calories: number;
   carbs: number;
   protein: number;
   fat: number;
@@ -56,3 +57,24 @@ export interface DailySummary {
   sodium: number;
   cholesterol: number;
 }
+
+export interface DateKey {
+  year: number;
+  month: number;
+  day: number;
+}
+
+export interface DailyMealData {
+  date: DateKey;
+  meals: Record<string, MealRecord>;
+  lastModified: number;
+}
+
+export const dateToKey = (date: Date): DateKey => ({
+  year: date.getFullYear(),
+  month: date.getMonth() + 1,
+  day: date.getDate()
+});
+
+export const keyToDate = (key: DateKey): Date => 
+  new Date(key.year, key.month - 1, key.day);

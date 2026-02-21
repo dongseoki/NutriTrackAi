@@ -8,14 +8,14 @@
 
 ### Phase 1: 데이터 모델 및 타입 업데이트
 
-- [-] 1. 타입 정의 업데이트
+- [x] 1. 타입 정의 업데이트
   - `types.ts`에 `calories` 필드를 `FoodItem` 인터페이스에 추가
   - `DateKey` 인터페이스 추가
   - `DailyMealData` 인터페이스 추가
   - 날짜 변환 유틸리티 함수 추가 (`dateToKey`, `keyToDate`)
   - _Requirements: 2.1, 4.2_
 
-- [ ] 1.1 타입 정의 단위 테스트 작성
+- [x] 1.1 타입 정의 단위 테스트 작성
   - 날짜 변환 함수 테스트 (dateToKey, keyToDate)
   - DateKey 유일성 테스트
   - _Requirements: 4.2_
