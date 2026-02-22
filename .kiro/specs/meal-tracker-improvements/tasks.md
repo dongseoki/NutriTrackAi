@@ -88,33 +88,33 @@
 
 ### Phase 4: App 컴포넌트 날짜 관리 통합
 
-- [ ] 4. App 상태에 날짜 관리 추가
+- [x] 4. App 상태에 날짜 관리 추가
   - `selectedDate` state 추가
   - `showCalendar` state 추가
   - `datesWithData` state 추가
   - Storage Service 초기화
   - _Requirements: 1.1, 1.6_
 
-- [ ] 4.1 날짜별 데이터 로드/저장 구현
+- [x] 4.1 날짜별 데이터 로드/저장 구현
   - `useEffect`로 날짜 변경 시 데이터 로드
   - `useEffect`로 mealRecords 변경 시 데이터 저장
   - `loadMealRecordsForDate` 함수 구현
   - `saveMealRecordsForDate` 함수 구현
   - _Requirements: 4.4, 4.3_
 
-- [ ] 4.2 Calendar 통합 및 UI 업데이트
+- [x] 4.2 Calendar 통합 및 UI 업데이트
   - Dashboard에 달력 아이콘 버튼 추가 (우측 상단)
   - "오늘보기" 버튼 추가 (달력 아이콘 우측)
   - Calendar 모달 표시/숨김 처리
   - 날짜 선택 시 데이터 로드
   - _Requirements: 1.1, 1.7, 1.8_
 
-- [ ] 4.3 Dashboard 헤더에 선택된 날짜 표시
+- [x] 4.3 Dashboard 헤더에 선택된 날짜 표시
   - 현재 날짜가 아닐 경우 날짜 표시
   - 오늘 날짜일 경우 "오늘" 표시
   - _Requirements: 1.9_
 
-- [ ] 4.4 날짜 관리 속성 테스트 작성
+- [x] 4.4 날짜 관리 속성 테스트 작성
   - **Property 1: Date Selection Updates Display**
   - **Property 3: Today Button Returns to Current Date**
   - **Validates: Requirements 1.6, 1.8**

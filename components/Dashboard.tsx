@@ -6,15 +6,57 @@ interface DashboardProps {
   summary: DailySummary;
   mealRecords: Record<string, MealRecord>;
   onMealClick: (type: MealType) => void;
+  selectedDate: Date;
+  onCalendarClick: () => void;
+  onTodayClick: () => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ summary, mealRecords, onMealClick }) => {
+const Dashboard: React.FC<DashboardProps> = ({ summary, mealRecords, onMealClick, selectedDate, onCalendarClick, onTodayClick }) => {
   const caloriePercent = Math.min(Math.round((summary.totalCalories / summary.goals.calories) * 100), 100);
+  
+  // Check if selected date is today
+  const isToday = () => {
+    const today = new Date();
+    return selectedDate.getFullYear() === today.getFullYear() &&
+           selectedDate.getMonth() === today.getMonth() &&
+           selectedDate.getDate() === today.getDate();
+  };
+
+  // Format selected date for display
+  const formatDate = () => {
+    if (isToday()) {
+      return '오늘';
+    }
+    return selectedDate.toLocaleDateString('ko-KR', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  };
 
   return (
     <div className="flex flex-col h-full">
-      <header className="p-6 pb-2">
-        <h1 className="text-3xl font-bold text-slate-900">오늘</h1>
+      <header className="p-6 pb-2 flex items-center justify-between">
+        <h1 className="text-3xl font-bold text-slate-900">{formatDate()}</h1>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={onCalendarClick}
+            className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+            aria-label="달력 열기"
+          >
+            <svg className="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </button>
+          {!isToday() && (
+            <button
+              onClick={onTodayClick}
+              className="px-3 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+            >
+              오늘보기
+            </button>
+          )}
+        </div>
       </header>
 
       <div className="px-6 mb-6">
