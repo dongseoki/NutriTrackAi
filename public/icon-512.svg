@@ -1,0 +1,5 @@
+<svg width="512" height="512" xmlns="http://www.w3.org/2000/svg">
+  <rect width="512" height="512" fill="#4f46e5"/>
+  <text x="256" y="256" font-size="200" text-anchor="middle" dominant-baseline="middle" fill="white" font-family="Arial, sans-serif">🍽️</text>
+  <text x="256" y="400" font-size="64" text-anchor="middle" fill="white" font-family="Arial, sans-serif">식단관리</text>
+</svg>

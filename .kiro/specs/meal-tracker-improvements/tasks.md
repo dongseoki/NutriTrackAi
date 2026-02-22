@@ -145,35 +145,35 @@
 
 ### Phase 6: PWA 설정
 
-- [ ] 6. PWA Manifest 파일 생성
+- [x] 6. PWA Manifest 파일 생성
   - `public/manifest.json` 파일 생성
   - 앱 이름, 아이콘, 테마 색상 설정
   - start_url, display 모드 설정
   - _Requirements: 3.1, 3.2_
 
-- [ ] 6.1 앱 아이콘 생성
+- [x] 6.1 앱 아이콘 생성
   - 192x192 아이콘 생성 (`public/icon-192.png`)
   - 512x512 아이콘 생성 (`public/icon-512.png`)
   - _Requirements: 3.2, 3.6_
 
-- [ ] 6.2 Service Worker 구현
+- [x] 6.2 Service Worker 구현
   - `public/service-worker.js` 파일 생성
   - 캐시 전략 구현 (install, fetch 이벤트)
   - 정적 자산 캐싱
   - _Requirements: 3.3, 3.4_
 
-- [ ] 6.3 Service Worker 등록
+- [x] 6.3 Service Worker 등록
   - `index.html`에 manifest 링크 추가
   - `index.tsx`에 service worker 등록 코드 추가
   - 브라우저 지원 확인
   - _Requirements: 3.3, 3.7_
 
-- [ ] 6.4 PWA 속성 테스트 작성
+- [x] 6.4 PWA 속성 테스트 작성
   - **Property 7: Manifest File Availability**
   - **Property 8: Service Worker Registration**
   - **Validates: Requirements 3.1, 3.2, 3.3**
 
-- [ ] 6.5 PWA 통합 테스트
+- [x] 6.5 PWA 통합 테스트
   - 오프라인 기능 테스트
   - 홈 화면 추가 테스트
   - Standalone 모드 테스트

@@ -1,0 +1,6 @@
+This is a placeholder. Please replace with actual 192x192 PNG icon.
+For now, the manifest will reference this file.
+To generate proper icons:
+1. Use the generate-icons.html file in a browser
+2. Or use an online SVG to PNG converter with icon-192.svg
+3. Or use design tools like Figma, Photoshop, etc.

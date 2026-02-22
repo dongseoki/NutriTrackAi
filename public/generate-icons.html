@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Generate PWA Icons</title>
+</head>
+<body>
+  <h1>PWA Icon Generator</h1>
+  <p>Open browser console and run the script to download icons</p>
+  
+  <canvas id="canvas192" width="192" height="192" style="border: 1px solid black;"></canvas>
+  <canvas id="canvas512" width="512" height="512" style="border: 1px solid black;"></canvas>
+  
+  <script>
+    function generateIcon(canvasId, size) {
+      const canvas = document.getElementById(canvasId);
+      const ctx = canvas.getContext('2d');
+      
+      // Background
+      ctx.fillStyle = '#4f46e5';
+      ctx.fillRect(0, 0, size, size);
+      
+      // Emoji
+      ctx.font = `${size * 0.4}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('🍽️', size / 2, size / 2.5);
+      
+      // Text
+      ctx.font = `${size * 0.12}px Arial`;
+      ctx.fillStyle = 'white';
+      ctx.fillText('식단관리', size / 2, size * 0.75);
+      
+      // Download
+      canvas.toBlob(function(blob) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `icon-${size}.png`;
+        a.click();
+      });
+    }
+    
+    // Auto-generate on load
+    setTimeout(() => {
+      generateIcon('canvas192', 192);
+      setTimeout(() => generateIcon('canvas512', 512), 500);
+    }, 1000);
+  </script>
+</body>
+</html>
