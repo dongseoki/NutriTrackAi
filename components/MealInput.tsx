@@ -61,6 +61,7 @@ const MealInput: React.FC<MealInputProps> = ({ mealType, initialRecord, onSave, 
     const newItem: FoodItem = {
       id: `manual-${Date.now()}`,
       name: '',
+      calories: 0,
       carbs: 0,
       protein: 0,
       fat: 0,
@@ -85,13 +86,14 @@ const MealInput: React.FC<MealInputProps> = ({ mealType, initialRecord, onSave, 
   };
 
   const totals = items.reduce((acc, curr) => ({
+    calories: acc.calories + (Number(curr.calories) || 0),
     carbs: acc.carbs + (Number(curr.carbs) || 0),
     protein: acc.protein + (Number(curr.protein) || 0),
     fat: acc.fat + (Number(curr.fat) || 0),
     sugar: acc.sugar + (Number(curr.sugar) || 0),
     sodium: acc.sodium + (Number(curr.sodium) || 0),
     cholesterol: acc.cholesterol + (Number(curr.cholesterol) || 0),
-  }), { carbs: 0, protein: 0, fat: 0, sugar: 0, sodium: 0, cholesterol: 0 });
+  }), { calories: 0, carbs: 0, protein: 0, fat: 0, sugar: 0, sodium: 0, cholesterol: 0 });
 
   return (
     <div className="flex flex-col h-full bg-slate-50">
@@ -170,6 +172,7 @@ const MealInput: React.FC<MealInputProps> = ({ mealType, initialRecord, onSave, 
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-100">
                   <th className="p-3 font-bold text-slate-500 min-w-[100px]">음식명</th>
+                  <th className="p-1 font-bold text-slate-500 text-center">칼(kcal)</th>
                   <th className="p-1 font-bold text-slate-500 text-center">탄(g)</th>
                   <th className="p-1 font-bold text-slate-500 text-center">단(g)</th>
                   <th className="p-1 font-bold text-slate-500 text-center">지(g)</th>
@@ -182,7 +185,7 @@ const MealInput: React.FC<MealInputProps> = ({ mealType, initialRecord, onSave, 
               <tbody className="divide-y divide-slate-50">
                 {items.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="p-12 text-center text-slate-400 italic">
+                    <td colSpan={9} className="p-12 text-center text-slate-400 italic">
                       음식을 추가해주세요
                     </td>
                   </tr>
@@ -196,6 +199,15 @@ const MealInput: React.FC<MealInputProps> = ({ mealType, initialRecord, onSave, 
                           onChange={(e) => handleUpdateItem(item.id, 'name', e.target.value)}
                           placeholder="음식 이름"
                           className="w-full bg-transparent font-semibold text-slate-800 focus:outline-none focus:ring-1 focus:ring-indigo-200 rounded px-1"
+                        />
+                      </td>
+                      <td className="p-1">
+                        <input 
+                          type="number" 
+                          step="0.01"
+                          value={item.calories} 
+                          onChange={(e) => handleUpdateItem(item.id, 'calories', parseFloat(e.target.value) || 0)}
+                          className="w-full bg-transparent text-center text-slate-600 focus:outline-none focus:ring-1 focus:ring-indigo-200 rounded"
                         />
                       </td>
                       <td className="p-1">
@@ -265,6 +277,7 @@ const MealInput: React.FC<MealInputProps> = ({ mealType, initialRecord, onSave, 
                 {items.length > 0 && (
                   <tr className="bg-indigo-50 font-bold border-t border-indigo-100">
                     <td className="p-3 text-indigo-700">총계</td>
+                    <td className="p-1 text-center text-indigo-700">{formatValue(totals.calories)}</td>
                     <td className="p-1 text-center text-indigo-700">{formatValue(totals.carbs)}</td>
                     <td className="p-1 text-center text-indigo-700">{formatValue(totals.protein)}</td>
                     <td className="p-1 text-center text-indigo-700">{formatValue(totals.fat)}</td>
@@ -319,7 +332,11 @@ const MealInput: React.FC<MealInputProps> = ({ mealType, initialRecord, onSave, 
                     <div className="flex justify-between items-start mb-2">
                       <span className="font-bold text-slate-800 text-lg">{item.name}</span>
                     </div>
-                    <div className="grid grid-cols-3 gap-2 text-[10px] text-slate-500">
+                    <div className="grid grid-cols-4 gap-2 text-[10px] text-slate-500">
+                      <div className="bg-white p-2 rounded-lg border border-slate-100">
+                        <span className="block opacity-60">칼로리</span>
+                        <span className="font-bold text-slate-700">{formatValue(item.calories)}kcal</span>
+                      </div>
                       <div className="bg-white p-2 rounded-lg border border-slate-100">
                         <span className="block opacity-60">탄수화물</span>
                         <span className="font-bold text-slate-700">{formatValue(item.carbs)}g</span>

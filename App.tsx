@@ -87,7 +87,7 @@ const App: React.FC = () => {
     // Fix: Cast Object.values(mealRecords) to MealRecord[] to resolve the 'unknown' type error during iteration
     (Object.values(mealRecords) as MealRecord[]).forEach(record => {
       record.items.forEach(item => {
-        summary.totalCalories += (item.carbs * 4) + (item.protein * 4) + (item.fat * 9);
+        summary.totalCalories += item.calories;
         summary.carbs += item.carbs;
         summary.protein += item.protein;
         summary.fat += item.fat;

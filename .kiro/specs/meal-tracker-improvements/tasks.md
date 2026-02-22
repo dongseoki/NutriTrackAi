@@ -121,23 +121,23 @@
 
 ### Phase 5: 칼로리 필드 추가
 
-- [ ] 5. MealInput 테이블에 칼로리 열 추가
+- [x] 5. MealInput 테이블에 칼로리 열 추가
   - 테이블 헤더에 "칼(kcal)" 열 추가 (음식명과 탄수화물 사이)
   - 칼로리 입력 필드 추가
   - 칼로리 총계 계산 및 표시
   - _Requirements: 2.1, 2.2, 2.3, 2.4_
 
-- [ ] 5.1 Dashboard 칼로리 계산 업데이트
+- [x] 5.1 Dashboard 칼로리 계산 업데이트
   - `dailySummary` 계산 시 FoodItem의 calories 필드 사용
   - 기존 계산식 제거 (carbs*4 + protein*4 + fat*9)
   - _Requirements: 2.4_
 
-- [ ] 5.2 AI 분석 결과에 칼로리 추가
+- [x] 5.2 AI 분석 결과에 칼로리 추가
   - `geminiService.ts`의 responseSchema에 calories 필드 추가
   - AI 분석 모달에 칼로리 정보 표시
   - _Requirements: 2.5, 2.6_
 
-- [ ] 5.3 칼로리 속성 테스트 작성
+- [x] 5.3 칼로리 속성 테스트 작성
   - **Property 4: Calorie Column Presence**
   - **Property 5: Calorie Total Calculation**
   - **Property 6: AI Analysis Includes Calories**

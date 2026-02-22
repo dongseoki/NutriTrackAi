@@ -29,6 +29,7 @@ export const analyzeFoodImage = async (base64Image: string) => {
           type: Type.OBJECT,
           properties: {
             name: { type: Type.STRING, description: "음식 명칭" },
+            calories: { type: Type.NUMBER, description: "칼로리 (kcal)" },
             carbs: { type: Type.NUMBER, description: "탄수화물 (g)" },
             protein: { type: Type.NUMBER, description: "단백질 (g)" },
             fat: { type: Type.NUMBER, description: "지방 (g)" },
@@ -36,7 +37,7 @@ export const analyzeFoodImage = async (base64Image: string) => {
             sodium: { type: Type.NUMBER, description: "나트륨 (mg)" },
             cholesterol: { type: Type.NUMBER, description: "콜레스테롤 (mg)" },
           },
-          required: ["name", "carbs", "protein", "fat", "sugar", "sodium", "cholesterol"],
+          required: ["name", "calories", "carbs", "protein", "fat", "sugar", "sodium", "cholesterol"],
         },
       },
     },
