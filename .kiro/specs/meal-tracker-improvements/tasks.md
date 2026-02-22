@@ -22,35 +22,35 @@
 
 ### Phase 2: IndexedDB Storage Service 구현
 
-- [ ] 2. Storage Service 기본 구조 생성
+- [x] 2. Storage Service 기본 구조 생성
   - `services/storageService.ts` 파일 생성
   - `StorageService` 클래스 정의
   - 데이터베이스 초기화 메서드 구현 (`init`)
   - _Requirements: 4.1, 4.2_
 
-- [ ] 2.1 데이터 저장 기능 구현
+- [x] 2.1 데이터 저장 기능 구현
   - `saveMealRecords` 메서드 구현
   - 날짜를 키로 사용하여 IndexedDB에 저장
   - 이미지 데이터 포함 저장 지원
   - _Requirements: 4.3, 4.9_
 
-- [ ] 2.2 데이터 로드 기능 구현
+- [x] 2.2 데이터 로드 기능 구현
   - `loadMealRecords` 메서드 구현
   - 날짜별 데이터 조회
   - 데이터가 없을 경우 빈 MealRecord 객체 반환
   - _Requirements: 4.4, 4.8_
 
-- [ ] 2.3 데이터 삭제 및 조회 기능 구현
+- [x] 2.3 데이터 삭제 및 조회 기능 구현
   - `deleteMealRecords` 메서드 구현
   - `getAllDatesWithData` 메서드 구현
   - 에러 핸들링 추가
   - _Requirements: 4.6, 4.7_
 
-- [ ] 2.4 Storage Service 속성 테스트 작성
+- [x] 2.4 Storage Service 속성 테스트 작성
   - **Property 9: Storage Round-Trip Consistency**
   - **Validates: Requirements 4.3, 4.4**
 
-- [ ] 2.5 Storage Service 단위 테스트 작성
+- [x] 2.5 Storage Service 단위 테스트 작성
   - 빈 상태 초기화 테스트
   - 에러 핸들링 테스트
   - 이미지 데이터 저장/로드 테스트
