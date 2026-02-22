@@ -22,9 +22,34 @@ if ('serviceWorker' in navigator) {
       .register('/service-worker.js')
       .then((registration) => {
         console.log('Service Worker registered successfully:', registration.scope);
+        
+        // Check for updates periodically
+        setInterval(() => {
+          registration.update();
+        }, 60000); // Check every minute
       })
       .catch((error) => {
         console.error('Service Worker registration failed:', error);
       });
   });
 }
+
+// Handle PWA install prompt
+let deferredPrompt: any;
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  console.log('beforeinstallprompt event fired');
+  // Prevent the mini-infobar from appearing on mobile
+  e.preventDefault();
+  // Stash the event so it can be triggered later
+  deferredPrompt = e;
+  
+  // Optionally, show your own install button here
+  // For now, we'll just log that the app is installable
+  console.log('App is installable');
+});
+
+window.addEventListener('appinstalled', () => {
+  console.log('PWA was installed');
+  deferredPrompt = null;
+});
