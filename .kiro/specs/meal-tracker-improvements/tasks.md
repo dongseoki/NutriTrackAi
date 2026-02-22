@@ -58,29 +58,29 @@
 
 ### Phase 3: Calendar Component 구현
 
-- [ ] 3. Calendar 컴포넌트 생성
+- [x] 3. Calendar 컴포넌트 생성
   - `components/Calendar.tsx` 파일 생성
   - 기본 컴포넌트 구조 및 props 정의
   - 월별 날짜 그리드 렌더링
   - _Requirements: 1.2, 1.3_
 
-- [ ] 3.1 Calendar 네비게이션 구현
+- [x] 3.1 Calendar 네비게이션 구현
   - 이전 달/다음 달 이동 버튼 구현
   - 월 경계 처리
   - 현재 월 표시
   - _Requirements: 1.4, 1.5_
 
-- [ ] 3.2 Calendar 날짜 선택 기능 구현
+- [x] 3.2 Calendar 날짜 선택 기능 구현
   - 날짜 클릭 이벤트 핸들러
   - 선택된 날짜 하이라이트
   - 데이터가 있는 날짜 표시 (점 또는 색상)
   - _Requirements: 1.6_
 
-- [ ] 3.3 Calendar 속성 테스트 작성
+- [x] 3.3 Calendar 속성 테스트 작성
   - **Property 2: Calendar Navigation Preserves Month Boundaries**
   - **Validates: Requirements 1.4, 1.5**
 
-- [ ] 3.4 Calendar 단위 테스트 작성
+- [x] 3.4 Calendar 단위 테스트 작성
   - 날짜 선택 테스트
   - 월 네비게이션 테스트
   - 유효하지 않은 날짜 처리 테스트
