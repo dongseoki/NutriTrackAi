@@ -22,6 +22,7 @@ export interface FoodItem {
 }
 
 export interface MealRecord {
+  // TODO MealRecord의 MealType은  DailyMealData내에서 동일한 의미로 쓰이기 때문에 개선 필요.
   type: MealType;
   items: FoodItem[];
   image?: string;
