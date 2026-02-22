@@ -19,6 +19,7 @@ export interface FoodItem {
   sugar: number;
   sodium: number;
   cholesterol: number;
+  image?: string; // Optional base64 image data
 }
 
 export interface MealRecord {

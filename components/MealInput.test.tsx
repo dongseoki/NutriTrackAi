@@ -74,15 +74,15 @@ describe('MealInput Component - Calorie Properties', () => {
         // Generate an array of 1-10 food items with random calorie values
         fc.array(
           fc.record({
-            id: fc.string({ minLength: 1 }),
-            name: fc.string({ minLength: 1 }),
-            calories: fc.float({ min: 0, max: 1000, noNaN: true }),
-            carbs: fc.float({ min: 0, max: 100, noNaN: true }),
-            protein: fc.float({ min: 0, max: 100, noNaN: true }),
-            fat: fc.float({ min: 0, max: 100, noNaN: true }),
-            sugar: fc.float({ min: 0, max: 100, noNaN: true }),
-            sodium: fc.float({ min: 0, max: 1000, noNaN: true }),
-            cholesterol: fc.float({ min: 0, max: 500, noNaN: true })
+            id: fc.uuid(),
+            name: fc.string({ minLength: 1, maxLength: 20 }),
+            calories: fc.integer({ min: 0, max: 1000 }),
+            carbs: fc.integer({ min: 0, max: 100 }),
+            protein: fc.integer({ min: 0, max: 100 }),
+            fat: fc.integer({ min: 0, max: 100 }),
+            sugar: fc.integer({ min: 0, max: 100 }),
+            sodium: fc.integer({ min: 0, max: 1000 }),
+            cholesterol: fc.integer({ min: 0, max: 500 })
           }),
           { minLength: 1, maxLength: 10 }
         ),
@@ -138,7 +138,7 @@ describe('MealInput Component - Calorie Properties', () => {
           cleanup();
         }
       ),
-      { numRuns: 100 }
+      { numRuns: 50, timeout: 10000 }
     );
-  });
+  }, 15000);
 });

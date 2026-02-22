@@ -13,6 +13,7 @@ vi.mock('./services/geminiService', () => ({
 vi.mock('./services/storageService', () => ({
   storageService: {
     init: vi.fn().mockResolvedValue(undefined),
+    setErrorCallback: vi.fn(),
     loadMealRecords: vi.fn().mockResolvedValue({
       '아침전 간식': { type: '아침전 간식', items: [] },
       '아침': { type: '아침', items: [] },

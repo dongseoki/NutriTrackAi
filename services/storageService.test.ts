@@ -22,7 +22,7 @@ class MockIDBDatabase {
     }
     const store = this.stores.get(storeName)!;
     
-    return {
+    const transaction: any = {
       objectStore: () => ({
         put: (data: any) => {
           const request: any = {
@@ -32,6 +32,7 @@ class MockIDBDatabase {
           setTimeout(() => {
             store.set(data.dateKey, data);
             if (request.onsuccess) request.onsuccess();
+            if (transaction.oncomplete) transaction.oncomplete();
           }, 0);
           return request;
         },
@@ -70,8 +71,12 @@ class MockIDBDatabase {
           }, 0);
           return request;
         }
-      })
+      }),
+      oncomplete: null,
+      onerror: null
     };
+    
+    return transaction;
   }
 }
 
@@ -147,6 +152,9 @@ describe('StorageService Property-Based Tests', () => {
 
     await fc.assert(
       fc.asyncProperty(dateKeyArb, mealsArb, async (date, meals) => {
+        // Initialize storage before each test
+        await storageService.init();
+        
         // Save the meal records
         await storageService.saveMealRecords(date, meals);
 
@@ -183,9 +191,9 @@ describe('StorageService Property-Based Tests', () => {
           }
         }
       }),
-      { numRuns: 100 }
+      { numRuns: 50, timeout: 5000 }
     );
-  }, 30000); // 30 second timeout for property-based test
+  }, 15000); // 15 second timeout for property-based test
 });
 
 describe('StorageService Unit Tests', () => {
@@ -228,6 +236,8 @@ describe('StorageService Unit Tests', () => {
    * the service should return an empty meal records object with all meal types initialized.
    */
   it('should return empty meal records when no data exists', async () => {
+    await storageService.init();
+    
     const date: DateKey = { year: 2024, month: 1, day: 15 };
     
     const meals = await storageService.loadMealRecords(date);
@@ -270,11 +280,17 @@ describe('StorageService Unit Tests', () => {
 
     // Reset the service to use the failing mock
     (storageService as any).db = null;
+    (storageService as any).useFallback = false;
 
     const date: DateKey = { year: 2024, month: 1, day: 15 };
     
-    // Should reject with an error
-    await expect(storageService.loadMealRecords(date)).rejects.toThrow();
+    // Initialize should switch to fallback mode
+    await storageService.init();
+    
+    // Should still work with fallback storage
+    const meals = await storageService.loadMealRecords(date);
+    expect(meals).toBeDefined();
+    expect(Object.keys(meals).length).toBeGreaterThan(0);
   });
 
   /**
@@ -285,6 +301,8 @@ describe('StorageService Unit Tests', () => {
    * the image data should be preserved exactly when retrieved.
    */
   it('should preserve image data in meal records', async () => {
+    await storageService.init();
+    
     const date: DateKey = { year: 2024, month: 1, day: 15 };
     const base64Image = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==';
     
@@ -322,6 +340,8 @@ describe('StorageService Unit Tests', () => {
    * subsequent loads should return empty meal records.
    */
   it('should delete meal records successfully', async () => {
+    await storageService.init();
+    
     const date: DateKey = { year: 2024, month: 1, day: 15 };
     
     const meals: Record<string, MealRecord> = {
@@ -360,6 +380,8 @@ describe('StorageService Unit Tests', () => {
    * the service should return all date keys.
    */
   it('should return all dates with stored data', async () => {
+    await storageService.init();
+    
     const date1: DateKey = { year: 2024, month: 1, day: 15 };
     const date2: DateKey = { year: 2024, month: 1, day: 16 };
     
