@@ -4,6 +4,7 @@ import Dashboard from './components/Dashboard';
 import MealInput from './components/MealInput';
 import Calendar from './components/Calendar';
 import { storageService, StorageError } from './services/storageService';
+import { exportMealDataToEmail } from './services/emailExportService';
 
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<'dashboard' | 'input'>('dashboard');
@@ -169,6 +170,20 @@ const App: React.FC = () => {
     setShowCalendar(false);
   }, []);
 
+  const handleEmailExport = useCallback(async () => {
+    try {
+      const allMealData = await storageService.getAllMealData();
+      const result = await exportMealDataToEmail(allMealData);
+
+      if (result.method === 'download-mailto' && result.mailtoUrl) {
+        window.location.href = result.mailtoUrl;
+      }
+    } catch (error) {
+      console.error('Failed to export meal data by email:', error);
+      setErrorMessage('이메일 내보내기에 실패했습니다. 다시 시도해주세요.');
+    }
+  }, []);
+
   return (
     <div className="min-h-screen bg-slate-50 flex justify-center">
       <div className="w-full max-w-[480px] bg-white shadow-xl min-h-screen flex flex-col relative overflow-hidden">
@@ -195,6 +210,7 @@ const App: React.FC = () => {
             selectedDate={selectedDate}
             onCalendarClick={handleCalendarClick}
             onTodayClick={handleTodayClick}
+            onEmailExportClick={handleEmailExport}
           />
         ) : (
           activeMealType && (

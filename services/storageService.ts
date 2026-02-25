@@ -116,6 +116,21 @@ class StorageService {
   }
 
   /**
+   * Check whether a single meal record contains user-entered data.
+   */
+  private hasMealData(record: MealRecord | undefined): boolean {
+    if (!record) return false;
+    return record.items.length > 0 || Boolean(record.image);
+  }
+
+  /**
+   * Check whether any meal record for a day contains user-entered data.
+   */
+  private hasAnyMealData(meals: Record<string, MealRecord>): boolean {
+    return Object.values(meals).some(record => this.hasMealData(record));
+  }
+
+  /**
    * Save meal records for a specific date.
    * Stores the data with date as key and supports image data.
    * Uses fallback storage if IndexedDB is unavailable.
@@ -123,6 +138,12 @@ class StorageService {
    * Validates: Requirements 4.3, 4.7, 4.9
    */
   async saveMealRecords(date: DateKey, meals: Record<string, MealRecord>): Promise<void> {
+    // Do not persist empty days; keep calendar indicators aligned with real entries only.
+    if (!this.hasAnyMealData(meals)) {
+      await this.deleteMealRecords(date);
+      return;
+    }
+
     const dateKey = this.dateToKey(date);
     const data: DailyMealData = {
       date,
@@ -328,7 +349,9 @@ class StorageService {
     if (this.useFallback) {
       const dates: DateKey[] = [];
       this.fallbackStorage.forEach((value) => {
-        dates.push(value.date);
+        if (this.hasAnyMealData(value.meals as Record<string, MealRecord>)) {
+          dates.push(value.date);
+        }
       });
       return dates;
     }
@@ -339,7 +362,9 @@ class StorageService {
       if (!this.db) {
         const dates: DateKey[] = [];
         this.fallbackStorage.forEach((value) => {
-          dates.push(value.date);
+          if (this.hasAnyMealData(value.meals as Record<string, MealRecord>)) {
+            dates.push(value.date);
+          }
         });
         return dates;
       }
@@ -349,14 +374,13 @@ class StorageService {
       try {
         const transaction = this.db!.transaction([this.storeName], 'readonly');
         const store = transaction.objectStore(this.storeName);
-        const request = store.getAllKeys();
+        const request = store.getAll();
 
         request.onsuccess = () => {
-          const keys = request.result as string[];
-          const dates: DateKey[] = keys.map(key => {
-            const [year, month, day] = key.split('-').map(Number);
-            return { year, month, day };
-          });
+          const rows = request.result as Array<{ date: DateKey; meals: Record<string, MealRecord> }>;
+          const dates: DateKey[] = rows
+            .filter(row => this.hasAnyMealData(row.meals))
+            .map(row => row.date);
           resolve(dates);
         };
 
@@ -378,6 +402,76 @@ class StorageService {
         );
         this.notifyError(storageError);
         // Return empty array instead of rejecting
+        resolve([]);
+      }
+    });
+  }
+
+  /**
+   * Get all stored meal data that contains user-entered content.
+   * Uses fallback storage if IndexedDB is unavailable.
+   */
+  async getAllMealData(): Promise<DailyMealData[]> {
+    const sortByDateAsc = (rows: DailyMealData[]) =>
+      rows.sort((a, b) => {
+        const aKey = this.dateToKey(a.date);
+        const bKey = this.dateToKey(b.date);
+        return aKey.localeCompare(bKey);
+      });
+
+    if (this.useFallback) {
+      const rows: DailyMealData[] = [];
+      this.fallbackStorage.forEach((value) => {
+        if (this.hasAnyMealData(value.meals as Record<string, MealRecord>)) {
+          rows.push(value);
+        }
+      });
+      return sortByDateAsc(rows);
+    }
+
+    if (!this.db) {
+      await this.init();
+      if (!this.db) {
+        const rows: DailyMealData[] = [];
+        this.fallbackStorage.forEach((value) => {
+          if (this.hasAnyMealData(value.meals as Record<string, MealRecord>)) {
+            rows.push(value);
+          }
+        });
+        return sortByDateAsc(rows);
+      }
+    }
+
+    return new Promise((resolve) => {
+      try {
+        const transaction = this.db!.transaction([this.storeName], 'readonly');
+        const store = transaction.objectStore(this.storeName);
+        const request = store.getAll();
+
+        request.onsuccess = () => {
+          const rows = request.result as Array<DailyMealData>;
+          const data = rows.filter(row =>
+            this.hasAnyMealData(row.meals as Record<string, MealRecord>)
+          );
+          resolve(sortByDateAsc(data));
+        };
+
+        request.onerror = () => {
+          const error = new StorageError(
+            StorageErrorType.LOAD_FAILED,
+            '전체 식단 데이터를 불러오는데 실패했습니다.',
+            request.error
+          );
+          this.notifyError(error);
+          resolve([]);
+        };
+      } catch (error) {
+        const storageError = new StorageError(
+          StorageErrorType.LOAD_FAILED,
+          '전체 식단 데이터 조회 중 오류가 발생했습니다.',
+          error
+        );
+        this.notifyError(storageError);
         resolve([]);
       }
     });

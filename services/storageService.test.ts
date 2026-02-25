@@ -70,6 +70,18 @@ class MockIDBDatabase {
             if (request.onsuccess) request.onsuccess();
           }, 0);
           return request;
+        },
+        getAll: () => {
+          const request: any = {
+            onsuccess: null,
+            onerror: null,
+            result: []
+          };
+          setTimeout(() => {
+            request.result = Array.from(store.values());
+            if (request.onsuccess) request.onsuccess();
+          }, 0);
+          return request;
         }
       }),
       oncomplete: null,
@@ -152,17 +164,36 @@ describe('StorageService Property-Based Tests', () => {
 
     await fc.assert(
       fc.asyncProperty(dateKeyArb, mealsArb, async (date, meals) => {
+        const normalizedMeals: Record<string, MealRecord> = Object.fromEntries(
+          Object.entries(meals).map(([mealType, mealRecord]) => [
+            mealType,
+            { ...mealRecord, type: mealType as MealType }
+          ])
+        );
+        const hasAnyMealData = Object.values(normalizedMeals).some(record =>
+          record.items.length > 0 || Boolean(record.image)
+        );
+
         // Initialize storage before each test
         await storageService.init();
         
         // Save the meal records
-        await storageService.saveMealRecords(date, meals);
+        await storageService.saveMealRecords(date, normalizedMeals);
 
         // Load the meal records back
         const loadedMeals = await storageService.loadMealRecords(date);
 
+        // Empty day is intentionally not persisted.
+        if (!hasAnyMealData) {
+          for (const [mealType, loadedMeal] of Object.entries(loadedMeals)) {
+            expect(loadedMeal.type).toBe(mealType);
+            expect(loadedMeal.items).toEqual([]);
+          }
+          return;
+        }
+
         // Verify that all saved meals are present in loaded meals
-        for (const [mealType, mealRecord] of Object.entries(meals)) {
+        for (const [mealType, mealRecord] of Object.entries(normalizedMeals)) {
           const loadedMeal = loadedMeals[mealType];
           
           expect(loadedMeal).toBeDefined();
@@ -388,7 +419,19 @@ describe('StorageService Unit Tests', () => {
     const meals: Record<string, MealRecord> = {
       [MealType.BREAKFAST]: {
         type: MealType.BREAKFAST,
-        items: []
+        items: [
+          {
+            id: '1',
+            name: 'Test Food',
+            calories: 100,
+            carbs: 10,
+            protein: 5,
+            fat: 3,
+            sugar: 2,
+            sodium: 100,
+            cholesterol: 10
+          }
+        ]
       }
     };
 
@@ -400,5 +443,141 @@ describe('StorageService Unit Tests', () => {
     expect(dates.length).toBe(2);
     expect(dates).toContainEqual(date1);
     expect(dates).toContainEqual(date2);
+  });
+
+  it('should not keep a date when all meals are empty', async () => {
+    await storageService.init();
+
+    const date: DateKey = { year: 2024, month: 1, day: 17 };
+    const emptyMeals: Record<string, MealRecord> = {
+      [MealType.BREAKFAST]: {
+        type: MealType.BREAKFAST,
+        items: []
+      }
+    };
+
+    await storageService.saveMealRecords(date, emptyMeals);
+    const dates = await storageService.getAllDatesWithData();
+
+    expect(dates).not.toContainEqual(date);
+  });
+
+  it('should filter legacy empty records from dates with data', async () => {
+    await storageService.init();
+
+    const emptyDate: DateKey = { year: 2024, month: 1, day: 18 };
+    const dataDate: DateKey = { year: 2024, month: 1, day: 19 };
+    const store = (mockDB as any).stores.get('mealRecords');
+
+    store.set('2024-01-18', {
+      dateKey: '2024-01-18',
+      date: emptyDate,
+      meals: {
+        [MealType.BREAKFAST]: { type: MealType.BREAKFAST, items: [] }
+      },
+      lastModified: Date.now()
+    });
+
+    store.set('2024-01-19', {
+      dateKey: '2024-01-19',
+      date: dataDate,
+      meals: {
+        [MealType.BREAKFAST]: {
+          type: MealType.BREAKFAST,
+          items: [
+            {
+              id: '2',
+              name: 'Data Food',
+              calories: 200,
+              carbs: 20,
+              protein: 10,
+              fat: 5,
+              sugar: 3,
+              sodium: 120,
+              cholesterol: 12
+            }
+          ]
+        }
+      },
+      lastModified: Date.now()
+    });
+
+    const dates = await storageService.getAllDatesWithData();
+
+    expect(dates).toContainEqual(dataDate);
+    expect(dates).not.toContainEqual(emptyDate);
+  });
+
+  it('should return all meal data sorted by date', async () => {
+    await storageService.init();
+
+    const date1: DateKey = { year: 2024, month: 1, day: 20 };
+    const date2: DateKey = { year: 2024, month: 1, day: 5 };
+    const meals: Record<string, MealRecord> = {
+      [MealType.BREAKFAST]: {
+        type: MealType.BREAKFAST,
+        items: [
+          {
+            id: '10',
+            name: 'Egg',
+            calories: 155,
+            carbs: 1,
+            protein: 13,
+            fat: 11,
+            sugar: 1,
+            sodium: 124,
+            cholesterol: 373
+          }
+        ]
+      }
+    };
+
+    await storageService.saveMealRecords(date1, meals);
+    await storageService.saveMealRecords(date2, meals);
+
+    const allData = await storageService.getAllMealData();
+
+    expect(allData).toHaveLength(2);
+    expect(allData[0].date).toEqual(date2);
+    expect(allData[1].date).toEqual(date1);
+    expect(allData[0].meals[MealType.BREAKFAST].items[0].name).toBe('Egg');
+  });
+
+  it('should exclude empty days from all meal data export', async () => {
+    await storageService.init();
+
+    const dataDate: DateKey = { year: 2024, month: 1, day: 21 };
+    const emptyDate: DateKey = { year: 2024, month: 1, day: 22 };
+    const meals: Record<string, MealRecord> = {
+      [MealType.BREAKFAST]: {
+        type: MealType.BREAKFAST,
+        items: [
+          {
+            id: '11',
+            name: 'Toast',
+            calories: 80,
+            carbs: 15,
+            protein: 3,
+            fat: 1,
+            sugar: 2,
+            sodium: 140,
+            cholesterol: 0
+          }
+        ]
+      }
+    };
+
+    await storageService.saveMealRecords(dataDate, meals);
+    await storageService.saveMealRecords(emptyDate, {
+      [MealType.BREAKFAST]: {
+        type: MealType.BREAKFAST,
+        items: []
+      }
+    });
+
+    const allData = await storageService.getAllMealData();
+
+    expect(allData).toHaveLength(1);
+    expect(allData[0].date).toEqual(dataDate);
   });
 });

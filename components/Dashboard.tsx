@@ -9,9 +9,10 @@ interface DashboardProps {
   selectedDate: Date;
   onCalendarClick: () => void;
   onTodayClick: () => void;
+  onEmailExportClick: () => void;
 }
 
-const Dashboard: React.FC<DashboardProps> = ({ summary, mealRecords, onMealClick, selectedDate, onCalendarClick, onTodayClick }) => {
+const Dashboard: React.FC<DashboardProps> = ({ summary, mealRecords, onMealClick, selectedDate, onCalendarClick, onTodayClick, onEmailExportClick }) => {
   const caloriePercent = Math.min(Math.round((summary.totalCalories / summary.goals.calories) * 100), 100);
   
   // Check if selected date is today
@@ -39,6 +40,13 @@ const Dashboard: React.FC<DashboardProps> = ({ summary, mealRecords, onMealClick
       <header className="p-6 pb-2 flex items-center justify-between">
         <h1 className="text-3xl font-bold text-slate-900">{formatDate()}</h1>
         <div className="flex items-center gap-2">
+          <button
+            onClick={onEmailExportClick}
+            className="px-3 py-2 bg-emerald-600 text-white text-sm font-medium rounded-lg hover:bg-emerald-700 transition-colors"
+            aria-label="이메일로 JSON 내보내기"
+          >
+            JSON 메일
+          </button>
           <button
             onClick={onCalendarClick}
             className="p-2 hover:bg-slate-100 rounded-lg transition-colors"

@@ -2,6 +2,7 @@
 import React, { useState, useRef } from 'react';
 import { MealType, FoodItem, MealRecord } from '../types';
 import { analyzeFoodImage } from '../services/geminiService';
+import { compressBase64Image, shouldCompressImage } from '../utils/imageCompression';
 
 interface MealInputProps {
   mealType: MealType;
@@ -11,6 +12,7 @@ interface MealInputProps {
 }
 
 const MealInput: React.FC<MealInputProps> = ({ mealType, initialRecord, onSave, onBack }) => {
+  const AI_IMAGE_COMPRESSION_THRESHOLD_BYTES = 500 * 1024;
   const [items, setItems] = useState<FoodItem[]>(initialRecord.items);
   const [image, setImage] = useState<string | undefined>(initialRecord.image);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -22,6 +24,11 @@ const MealInput: React.FC<MealInputProps> = ({ mealType, initialRecord, onSave, 
   const formatValue = (val: number) => {
     // Round to 2 decimal places to avoid floating point errors like 35.300000000000004
     return Number(Math.round(Number(val + "e+2")) + "e-2");
+  };
+
+  const toSafeNumber = (val: unknown) => {
+    const num = Number(val);
+    return Number.isFinite(num) ? num : 0;
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,10 +46,20 @@ const MealInput: React.FC<MealInputProps> = ({ mealType, initialRecord, onSave, 
     if (!image) return;
     setIsAnalyzing(true);
     try {
-      const results = await analyzeFoodImage(image);
+      const imageForAnalysis = shouldCompressImage(image, AI_IMAGE_COMPRESSION_THRESHOLD_BYTES)
+        ? await compressBase64Image(image)
+        : image;
+      const results = await analyzeFoodImage(imageForAnalysis);
       const mappedResults: FoodItem[] = results.map((item: any, idx: number) => ({
-        ...item,
-        id: `ai-${Date.now()}-${idx}`
+        id: `ai-${Date.now()}-${idx}`,
+        name: typeof item?.name === 'string' ? item.name : '',
+        calories: toSafeNumber(item?.calories),
+        carbs: toSafeNumber(item?.carbs),
+        protein: toSafeNumber(item?.protein),
+        fat: toSafeNumber(item?.fat),
+        sugar: toSafeNumber(item?.sugar ?? item?.sugars ?? item?.당류 ?? item?.당),
+        sodium: toSafeNumber(item?.sodium ?? item?.나트륨),
+        cholesterol: toSafeNumber(item?.cholesterol ?? item?.콜레스테롤),
       }));
       setAiDetectedItems(mappedResults);
       setShowAiModal(true);
@@ -332,7 +349,7 @@ const MealInput: React.FC<MealInputProps> = ({ mealType, initialRecord, onSave, 
                     <div className="flex justify-between items-start mb-2">
                       <span className="font-bold text-slate-800 text-lg">{item.name}</span>
                     </div>
-                    <div className="grid grid-cols-4 gap-2 text-[10px] text-slate-500">
+                    <div className="grid grid-cols-3 gap-2 text-[10px] text-slate-500">
                       <div className="bg-white p-2 rounded-lg border border-slate-100">
                         <span className="block opacity-60">칼로리</span>
                         <span className="font-bold text-slate-700">{formatValue(item.calories)}kcal</span>
@@ -348,6 +365,18 @@ const MealInput: React.FC<MealInputProps> = ({ mealType, initialRecord, onSave, 
                       <div className="bg-white p-2 rounded-lg border border-slate-100">
                         <span className="block opacity-60">지방</span>
                         <span className="font-bold text-slate-700">{formatValue(item.fat)}g</span>
+                      </div>
+                      <div className="bg-white p-2 rounded-lg border border-slate-100">
+                        <span className="block opacity-60">당류</span>
+                        <span className="font-bold text-slate-700">{formatValue(item.sugar)}g</span>
+                      </div>
+                      <div className="bg-white p-2 rounded-lg border border-slate-100">
+                        <span className="block opacity-60">나트륨</span>
+                        <span className="font-bold text-slate-700">{formatValue(item.sodium)}mg</span>
+                      </div>
+                      <div className="bg-white p-2 rounded-lg border border-slate-100">
+                        <span className="block opacity-60">콜레스테롤</span>
+                        <span className="font-bold text-slate-700">{formatValue(item.cholesterol)}mg</span>
                       </div>
                     </div>
                   </div>

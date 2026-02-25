@@ -3,10 +3,18 @@ import { render, screen, fireEvent, cleanup, waitFor } from '@testing-library/re
 import * as fc from 'fast-check';
 import App from './App';
 import { storageService } from './services/storageService';
+import { exportMealDataToEmail } from './services/emailExportService';
 
 // Mock the geminiService to avoid API key requirement
 vi.mock('./services/geminiService', () => ({
   analyzeFoodImage: vi.fn().mockResolvedValue([]),
+}));
+
+vi.mock('./services/emailExportService', () => ({
+  exportMealDataToEmail: vi.fn().mockResolvedValue({
+    method: 'web-share',
+    fileName: 'nutritrack-meals-20260225-1200.json',
+  }),
 }));
 
 // Mock the storageService
@@ -25,6 +33,7 @@ vi.mock('./services/storageService', () => ({
     }),
     saveMealRecords: vi.fn().mockResolvedValue(undefined),
     getAllDatesWithData: vi.fn().mockResolvedValue([]),
+    getAllMealData: vi.fn().mockResolvedValue([]),
   },
 }));
 
@@ -278,6 +287,22 @@ describe('App Component - Date Management Unit Tests', () => {
                dateKey.day === today.getDate();
       });
       expect(todayCall).toBeDefined();
+    });
+  });
+
+  it('should export all meal data when JSON mail button is clicked', async () => {
+    render(<App />);
+
+    await waitFor(() => {
+      expect(storageService.init).toHaveBeenCalled();
+    });
+
+    const exportButton = screen.getByLabelText('이메일로 JSON 내보내기');
+    fireEvent.click(exportButton);
+
+    await waitFor(() => {
+      expect(storageService.getAllMealData).toHaveBeenCalledTimes(1);
+      expect(exportMealDataToEmail).toHaveBeenCalledTimes(1);
     });
   });
 });
