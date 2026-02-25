@@ -84,8 +84,16 @@ export const exportMealDataToEmail = async (
     };
 
     if (!nav.canShare || nav.canShare(shareData)) {
-      await nav.share(shareData);
-      return { method: 'web-share', fileName };
+      try {
+        await nav.share(shareData);
+        return { method: 'web-share', fileName };
+      } catch (error) {
+        // User explicitly canceled share flow.
+        if (error instanceof DOMException && error.name === 'AbortError') {
+          throw error;
+        }
+        // Fall through to download + mailto for permission or platform errors.
+      }
     }
   }
 
@@ -99,4 +107,3 @@ export const exportMealDataToEmail = async (
     mailtoUrl
   };
 };
-

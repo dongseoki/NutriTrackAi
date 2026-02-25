@@ -82,8 +82,25 @@ describe('emailExportService', () => {
     expect(result.mailtoUrl).toContain('subject=');
   });
 
+  it('should fallback to download + mailto when share fails with NotAllowedError', async () => {
+    const share = vi.fn().mockRejectedValue(new DOMException('Permission denied', 'NotAllowedError'));
+    const canShare = vi.fn().mockReturnValue(true);
+
+    Object.defineProperty(window, 'navigator', {
+      value: { ...originalNavigator, share, canShare },
+      configurable: true
+    });
+
+    const result = await exportMealDataToEmail(sampleRecords, {
+      recipient: 'dongseok.lee.log@gmail.com'
+    });
+
+    expect(share).toHaveBeenCalledTimes(1);
+    expect(result.method).toBe('download-mailto');
+    expect(result.mailtoUrl).toContain('mailto:dongseok.lee.log@gmail.com');
+  });
+
   it('should throw when there is no data to export', async () => {
     await expect(exportMealDataToEmail([])).rejects.toThrow('내보낼 식단 데이터가 없습니다.');
   });
 });
-

@@ -70,6 +70,59 @@ export async function compressBase64Image(
 }
 
 /**
+ * Compress an image file directly without base64 pre-conversion.
+ * This avoids extra base64 encode/decode work on large uploads.
+ */
+export async function compressImageFile(
+  file: File,
+  maxWidth: number = 1024,
+  maxHeight: number = 1024,
+  quality: number = 0.8
+): Promise<string> {
+  if (typeof createImageBitmap === 'function') {
+    const bitmap = await createImageBitmap(file);
+    try {
+      let width = bitmap.width;
+      let height = bitmap.height;
+
+      if (width > maxWidth || height > maxHeight) {
+        const aspectRatio = width / height;
+        if (width > height) {
+          width = maxWidth;
+          height = width / aspectRatio;
+        } else {
+          height = maxHeight;
+          width = height * aspectRatio;
+        }
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        throw new Error('Failed to get canvas context');
+      }
+
+      ctx.drawImage(bitmap, 0, 0, width, height);
+      return canvas.toDataURL('image/jpeg', quality);
+    } finally {
+      bitmap.close();
+    }
+  }
+
+  const base64String = await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = () => reject(new Error('Failed to read image file'));
+    reader.readAsDataURL(file);
+  });
+
+  return compressBase64Image(base64String, maxWidth, maxHeight, quality);
+}
+
+/**
  * Get the size of a base64 string in bytes
  * @param base64String - The base64 string
  * @returns Size in bytes

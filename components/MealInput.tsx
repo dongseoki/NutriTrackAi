@@ -2,7 +2,7 @@
 import React, { useState, useRef } from 'react';
 import { MealType, FoodItem, MealRecord } from '../types';
 import { analyzeFoodImage } from '../services/geminiService';
-import { compressBase64Image, shouldCompressImage } from '../utils/imageCompression';
+import { compressBase64Image, compressImageFile, shouldCompressImage } from '../utils/imageCompression';
 
 interface MealInputProps {
   mealType: MealType;
@@ -13,9 +13,11 @@ interface MealInputProps {
 
 const MealInput: React.FC<MealInputProps> = ({ mealType, initialRecord, onSave, onBack }) => {
   const AI_IMAGE_COMPRESSION_THRESHOLD_BYTES = 500 * 1024;
+  const UPLOAD_IMAGE_COMPRESSION_THRESHOLD_BYTES = 500 * 1024;
   const [items, setItems] = useState<FoodItem[]>(initialRecord.items);
   const [image, setImage] = useState<string | undefined>(initialRecord.image);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isOptimizingImage, setIsOptimizingImage] = useState(false);
   const [showAiModal, setShowAiModal] = useState(false);
   const [aiDetectedItems, setAiDetectedItems] = useState<FoodItem[]>([]);
   
@@ -31,14 +33,41 @@ const MealInput: React.FC<MealInputProps> = ({ mealType, initialRecord, onSave, 
     return Number.isFinite(num) ? num : 0;
   };
 
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const readFileAsDataURL = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = () => reject(new Error('Failed to read image file'));
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const getUploadCompressionOptions = (fileSizeBytes: number) => {
+    if (fileSizeBytes >= 3 * 1024 * 1024) {
+      return { maxWidth: 960, maxHeight: 960, quality: 0.65 };
+    }
+    return { maxWidth: 1280, maxHeight: 1280, quality: 0.75 };
+  };
+
+  const handleImageChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+      setIsOptimizingImage(true);
+      try {
+        if (file.size > UPLOAD_IMAGE_COMPRESSION_THRESHOLD_BYTES) {
+          const { maxWidth, maxHeight, quality } = getUploadCompressionOptions(file.size);
+          const optimizedImage = await compressImageFile(file, maxWidth, maxHeight, quality);
+          setImage(optimizedImage);
+        } else {
+          const uploadedBase64 = await readFileAsDataURL(file);
+          setImage(uploadedBase64);
+        }
+      } catch (error) {
+        console.error('Failed to process image for upload:', error);
+        alert('이미지 처리 중 오류가 발생했습니다.');
+      } finally {
+        setIsOptimizingImage(false);
+      }
     }
   };
 
@@ -160,17 +189,19 @@ const MealInput: React.FC<MealInputProps> = ({ mealType, initialRecord, onSave, 
           </div>
           
           <button 
-            disabled={!image || isAnalyzing}
+            disabled={!image || isAnalyzing || isOptimizingImage}
             onClick={handleAiAnalysis}
             className={`w-full py-4 px-4 rounded-2xl flex items-center justify-center gap-2 font-bold transition-all shadow-sm ${
-              !image 
+              !image || isOptimizingImage
                 ? 'bg-slate-100 text-slate-400 cursor-not-allowed border border-slate-200' 
                 : isAnalyzing
                   ? 'bg-indigo-400 text-white animate-pulse'
                   : 'bg-indigo-600 text-white hover:bg-indigo-700 active:scale-[0.98]'
             }`}
           >
-            {isAnalyzing ? (
+            {isOptimizingImage ? (
+              <>이미지 최적화 중...</>
+            ) : isAnalyzing ? (
               <>AI 분석 중...</>
             ) : (
               <>

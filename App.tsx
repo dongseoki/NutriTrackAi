@@ -6,6 +6,8 @@ import Calendar from './components/Calendar';
 import { storageService, StorageError } from './services/storageService';
 import { exportMealDataToEmail } from './services/emailExportService';
 
+const EMAIL_EXPORT_RECIPIENT = 'dongseok.lee.log@gmail.com';
+
 const App: React.FC = () => {
   const [currentView, setCurrentView] = useState<'dashboard' | 'input'>('dashboard');
   const [activeMealType, setActiveMealType] = useState<MealType | null>(null);
@@ -173,10 +175,12 @@ const App: React.FC = () => {
   const handleEmailExport = useCallback(async () => {
     try {
       const allMealData = await storageService.getAllMealData();
-      const result = await exportMealDataToEmail(allMealData);
+      const result = await exportMealDataToEmail(allMealData, {
+        recipient: EMAIL_EXPORT_RECIPIENT
+      });
 
       if (result.method === 'download-mailto' && result.mailtoUrl) {
-        window.location.href = result.mailtoUrl;
+        window.open(result.mailtoUrl, '_self');
       }
     } catch (error) {
       console.error('Failed to export meal data by email:', error);

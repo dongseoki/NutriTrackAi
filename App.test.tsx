@@ -303,6 +303,9 @@ describe('App Component - Date Management Unit Tests', () => {
     await waitFor(() => {
       expect(storageService.getAllMealData).toHaveBeenCalledTimes(1);
       expect(exportMealDataToEmail).toHaveBeenCalledTimes(1);
+      expect(exportMealDataToEmail).toHaveBeenCalledWith([], {
+        recipient: 'dongseok.lee.log@gmail.com'
+      });
     });
   });
 });
