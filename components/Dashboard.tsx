@@ -122,7 +122,7 @@ const Dashboard: React.FC<DashboardProps> = ({ summary, mealRecords, onMealClick
                 <div className="flex items-center gap-2">
                   {hasData && <div className="w-2 h-2 rounded-full bg-indigo-500" />}
                   <svg className="w-5 h-5 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="9 5l7 7-7 7" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                   </svg>
                 </div>
               </button>
