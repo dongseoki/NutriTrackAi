@@ -1,6 +1,7 @@
 {
   "name": "식단 관리 앱",
   "short_name": "식단관리",
+  "id": "/",
   "description": "AI 기반 식단 영양 관리 애플리케이션",
   "start_url": "/",
   "scope": "/",
@@ -32,6 +33,21 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/home-wide.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "데스크톱 홈 화면"
+    },
+    {
+      "src": "/screenshots/home-mobile.png",
+      "sizes": "390x844",
+      "type": "image/png",
+      "label": "모바일 홈 화면"
     }
   ]
 }

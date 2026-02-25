@@ -1,0 +1,18 @@
+<svg width="390" height="844" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#1d4ed8"/>
+    </linearGradient>
+  </defs>
+  <rect width="390" height="844" fill="url(#bg)"/>
+  <rect x="24" y="88" width="342" height="668" rx="30" fill="#ffffff" opacity="0.96"/>
+  <text x="48" y="152" font-size="30" fill="#0f172a" font-family="Arial, sans-serif" font-weight="700">NutriTrack AI</text>
+  <text x="48" y="188" font-size="18" fill="#475569" font-family="Arial, sans-serif">오늘의 식단 요약</text>
+  <rect x="48" y="228" width="294" height="150" rx="16" fill="#eef2ff"/>
+  <rect x="48" y="396" width="294" height="150" rx="16" fill="#f0fdf4"/>
+  <rect x="48" y="564" width="294" height="150" rx="16" fill="#fff7ed"/>
+  <text x="195" y="318" font-size="58" text-anchor="middle" fill="#4338ca" font-family="Arial, sans-serif">🍽️</text>
+  <text x="195" y="486" font-size="58" text-anchor="middle" fill="#166534" font-family="Arial, sans-serif">🥗</text>
+  <text x="195" y="654" font-size="58" text-anchor="middle" fill="#9a3412" font-family="Arial, sans-serif">📈</text>
+</svg>
